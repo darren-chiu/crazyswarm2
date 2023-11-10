@@ -3,19 +3,13 @@ robots:
   cf231:
     enabled: true
     uri: radio://0/80/2M/E7E7E7E7E7
-    initial_position: [0, 0, 0]
+    initial_position: [3, 0, 0]
     type: cf21  # see robot_types
     # firmware_params:
     #   kalman:
     #     pNAcc_xy: 1.0 # default 0.5
-    # firmware_logging:
-    #   enabled: true
-    #   custom_topics:
-    #     topic_name3: 
-    #       frequency: 1
-    #       vars: ["acc.x", "acc.y"]
   cf5:
-    enabled: false
+    enabled: true
     uri: radio://0/80/2M/E7E7E7E705
     initial_position: [0, -0.5, 0]
     type: cf21  # see robot_types
@@ -72,15 +66,19 @@ all:
   # firmware logging for all drones (use robot_types/type_name to set per type, or
   # robots/drone_name to set per drone)
   firmware_logging:
-    enabled: false
+    enabled: true
     default_topics:
      # remove to disable default topic
       pose:
         frequency: 10 # Hz
-    #custom_topics:
-    #  topic_name1:
-    #    frequency: 10 # Hz
-    #    vars: ["stateEstimateZ.x", "stateEstimateZ.y", "stateEstimateZ.z", "pm.vbat"]
+      odom:
+        frequency: 10 # Hz
+      scan:
+        frequency: 10 # Hz
+    custom_topics:
+      localization:
+        frequency: 10 # Hz
+        vars: ["stateEstimateZ.x", "stateEstimateZ.y", "stateEstimateZ.z", "pm.vbat"]
     #  topic_name2:
     #    frequency: 1 # Hz
     #    vars: ["stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw"]
