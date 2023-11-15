@@ -32,8 +32,8 @@ class LocalizationSubscriber(Node):
         self.subscription
 
     def listener_callback(self, stamped):
-            print(stamped.pose.position.x)
-            # self.get_logger().info('I heard: "%s"' % stamped.pose.position.x)  # CHANGE
+            # print(stamped.pose.position.x)
+            self.get_logger().info('Onboard Estimation: (%s,%s,%s)' % stamped.pose.position.x)  # CHANGE
 
 def main(args=None):
     rclpy.init(args=args)
