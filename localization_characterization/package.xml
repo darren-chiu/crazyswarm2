@@ -1,17 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>crazyflie_examples</name>
-  <version>2.0.0</version>
-  <description>Examples for the Crazyswarm2 ROS stack</description>
-  <maintainer email="hoenig@tu-berlin.de">Wolfgang Hönig, Kimberly McGuire</maintainer>
-  <license>MIT</license>
+  <name>localization_characterization</name>
+  <version>0.0.0</version>
+  <description>Set of scripts that are ued for collecting data on characterization</description>
+  <maintainer email="chiudarr@usc.edu">Darren Chiu</maintainer>
+  <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <depend>rclpy</depend>
   <depend>crazyflie_py</depend>
 
+  <exec_depend>tf2_ros</exec_depend>
   <exec_depend>crazyfie_interfaces</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
