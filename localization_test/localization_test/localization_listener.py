@@ -26,16 +26,27 @@ class LocalizationSubscriber(Node):
 
     def __init__(self):
         super().__init__('localization_subscriber')
-        self.subscription = self.create_subscription(
-            PoseStamped,                                               # CHANGE
+        self.onboard_subscription = self.create_subscription(
+            PoseStamped,                                               
             '/cf1/pose',
-            self.listener_callback,
+            self.onboard_callback,
             10)
-        self.subscription
+        self.onboard_subscription
 
-    def listener_callback(self, onboard_frame):
+        self.vicon_subscription = self.create_subscription(
+            PoseStamped,                                               
+            '/cf1/pose',
+            self.vicon_callback,
+            10)
+        self.vicon_subscription
+
+    def onboard_callback(self, frame):
             # print(stamped.pose.position.x)
-            self.get_logger().info('Onboard Estimation: (%s,%s,%s)' % onboard_frame.pose.position.x)  # CHANGE
+            self.get_logger().info('Onboard Estimation: (%s,%s,%s)' % frame.pose.position.x)  # CHANGE
+
+    def onboard_callback(self, frame):
+            # print(stamped.pose.position.x)
+            self.get_logger().info('Vicon Estimation: (%s,%s,%s)' % frame.pose.position.x)  # CHANGE
 
 def main(args=None):
     rclpy.init(args=args)
