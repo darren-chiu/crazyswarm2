@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'localization_listener = localization_test.localization_listener:main'
         ],
     },
 )

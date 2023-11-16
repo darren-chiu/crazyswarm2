@@ -13,8 +13,8 @@ from geometry_msgs.msg import PoseStamped
 from tf2_msgs.msg import TFMessage
 
 #ROS2 Node Imports
-import rclpy
 from rclpy.node import Node
+import rclpy
 
 #Transform Imports
 from tf2_ros import TransformException
@@ -26,6 +26,7 @@ class LocalizationSubscriber(Node):
 
     def __init__(self):
         super().__init__('localization_subscriber')
+
         self.onboard_subscription = self.create_subscription(
             PoseStamped,                                               
             '/cf1/pose',
@@ -42,16 +43,16 @@ class LocalizationSubscriber(Node):
 
     def onboard_callback(self, frame):
             # print(stamped.pose.position.x)
-            self.get_logger().info('Onboard Estimation: (%s,%s,%s)' % frame.pose.position.x)  # CHANGE
+            self.get_logger().info('Onboard Estimation: (%s)' % frame.pose.position.x)  # CHANGE
 
-    def onboard_callback(self, frame):
+    def vicon_callback(self, frame):
             # print(stamped.pose.position.x)
-            self.get_logger().info('Vicon Estimation: (%s,%s,%s)' % frame.pose.position.x)  # CHANGE
+            self.get_logger().info('Vicon Estimation: (%s)' % frame.pose.position.x)  # CHANGE
 
 def main(args=None):
     rclpy.init(args=args)
     # l_sub = LocalizationSubscriber()
-    v_sub = ViconSubscriber()
+    v_sub = LocalizationSubscriber()
 
     # rclpy.spin(l_sub)
     rclpy.spin(v_sub)
