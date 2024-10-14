@@ -828,7 +828,7 @@ public:
     sensor_data_qos.keep_last(1);
     sensor_data_qos.deadline(rclcpp::Duration(0/*s*/, 1e9/poses_qos_deadline /*ns*/));
     sub_poses_ = this->create_subscription<NamedPoseArray>(
-        "poses", sensor_data_qos, std::bind(&CrazyflieServer::posesChanged, this, _1), sub_opt_mocap);
+        "poses_throttle", sensor_data_qos, std::bind(&CrazyflieServer::posesChanged, this, _1), sub_opt_mocap);
 
     // support for all.params
 
@@ -993,7 +993,7 @@ private:
     // split the message into parts that require position update and pose update
     std::vector<CrazyflieBroadcaster::externalPosition> data_position;
     std::vector<CrazyflieBroadcaster::externalPose> data_pose;
-
+    // RCLCPP_WARN(logger_, "Motion capture data sent to CF");
     for (const auto& pose : msg->poses) {
       const auto iter = name_to_id_.find(pose.name);
       if (iter != name_to_id_.end()) {
@@ -1118,7 +1118,7 @@ private:
       }
     } else if (mocap_enabled_) {
       // b) warn if no data was received
-      RCLCPP_WARN(logger_, "Motion capture did not receive data!");
+      // RCLCPP_WARN(logger_, "Motion capture did not receive data!");
     }
 
     mocap_data_received_timepoints_.clear();
