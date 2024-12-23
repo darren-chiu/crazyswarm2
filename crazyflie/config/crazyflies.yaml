@@ -1,15 +1,15 @@
 # named list of all robots
 robots:
   cf0:
-    enabled: false
+    enabled: true
     uri: radio://0/50/2M/E7E7E7E700
-    initial_position: [0.0, 0.0, 0.0]
+    initial_position: [0.0, 1.0, 0.0]
     type: cf21  # see robot_types
     # firmware_params:
     #   kalman:
     #     pNAcc_xy: 1.0 # default 0.5
   cf1:
-    enabled: false
+    enabled: true
     uri: radio://0/50/2M/E7E7E7E701
     initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
@@ -24,11 +24,11 @@ robots:
   cf2:
     enabled: true
     uri: radio://0/50/2M/E7E7E7E702
-    initial_position: [1.0, 0.0, 0.0]
+    initial_position: [0.0, -1.0, 0.0]
     type: cf21  # see robot_types
 
   cf3:
-    enabled: false
+    enabled: true
     uri: radio://0/50/2M/E7E7E7E703
     initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
@@ -78,18 +78,21 @@ all:
   # robots/drone_name to set per drone)
   firmware_logging:
     enabled: false
-    default_topics:
+    # default_topics:
     #  remove to disable default topic
-      pose:
-        frequency: 10 # Hz
+      # pose:
+      #   frequency: 20 # Hz
       # odom:
       #   frequency: 10 # Hz
-      scan:
-        frequency: 10 # Hztrue
-    custom_topics:
-      localization:
-        frequency: 10 # Hz
-        vars: ["stateEstimateZ.x", "stateEstimateZ.y", "stateEstimateZ.z", "pm.vbat"]
+      # scan:
+      #   frequency: 10 # Hztrue
+    # custom_topics:
+    #   localization:
+    #     frequency: 5 # Hz
+    #     vars: ["stateEstimate.x", "stateEstimate.y", "stateEstimate.z"]
+      # obstacle:
+      #   frequency: 10 # Hz
+      #   vars: ["logNN.obs1", "logNN.obs4", "logNN.obs5", "logNN.obs8"]
     #  topic_name2:
     #    frequency: 1 # Hz
     #    vars: ["stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw"]
@@ -101,7 +104,7 @@ all:
     stabilizer:
       estimator: 2 # 1: complementary, 2: kalman
       controller: 6 # 1: PID, 2: mellinger 4: Brescianni 6: NN Controller
-    # ring:
+    # ring
     #   effect: 16 # 6: double spinner, 7: solid color, 16: packetRate
     #   solidBlue: 255 # if set to solid color
     #   solidGreen: 0 # if set to solid color
@@ -111,7 +114,7 @@ all:
       extPosStdDev: 1e-3
       extQuatStdDev: 0.5e-1
     kalman:
-      resetEstimation: 1
+      resetEstimation: 0
     usd:
       logging: 0
   broadcasts:

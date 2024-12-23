@@ -5,7 +5,7 @@ import numpy as np
 
 
 def main():
-    Z = 1.25
+    Z = 0.5
     takeoff_duration = 1.2+Z
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
