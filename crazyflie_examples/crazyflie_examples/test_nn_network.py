@@ -6,8 +6,6 @@ import numpy as np
 from crazyflie_py.uav_trajectory import Trajectory
 import math
 import csv
-from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 # RECORD_VICON = False
 # if (RECORD_VICON):
@@ -22,9 +20,9 @@ YAW = 0
 TAKEOFF_DURATION = 2.5
 
 # MULI DRONE
-ENABLE_MULTI_DRONE = True
+ENABLE_MULTI_DRONE = False
 
-ENABLE_LOGGING = False
+ENABLE_LOGGING = True
 
 swarm = Crazyswarm()
 timeHelper = swarm.timeHelper
@@ -34,9 +32,14 @@ if (ENABLE_LOGGING):
     import rclpy
     import threading
     from geometry_msgs.msg import PoseStamped
+    
+    from rclpy.node import Node
+    from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+    
+    context = rclpy.context.Context()
+    # rclpy.init(context=context)
+    
     # Specify topics and output CSV file
-    topic_names = ['/cf0/localization']  # Replace with your topics
-    experiment_name = 'experiment_data/localization_log.csv'
     pose_data = []
     logging_active = True
     pose_lock = threading.Lock()
@@ -45,37 +48,53 @@ if (ENABLE_LOGGING):
 class PoseLogger(Node):
     def __init__(self, topic_names):
         super().__init__('pose_logger')
+        
         self.topic_names = topic_names
         self.subscribers = []
+        self.processing = False
         
-        self.qos_profile = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
+        self.qos_profile = QoSProfile(reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.VOLATILE, depth=10)
         for topic in topic_names:
-            self.subscribers.append(
-                self.create_subscription(PoseStamped, topic, self.pose_callback, self.qos_profile)
-            )
+            print("Subscribed to: ", topic)
+            
+            subscriber = self.create_subscription(PoseStamped, topic, self.pose_callback, self.qos_profile)
+            
+            if subscriber is None:
+                print(f"Failed to subscribe to topic: {topic}")
+            else:
+                self.subscribers.append(subscriber)
 
     def pose_callback(self, msg):
+        print("POSE CALLBACK")
         """Callback for logging pose data."""
-        timestamp = self.get_clock().now().to_msg().sec + self.get_clock().now().to_msg().nanosec * 1e-9
-        position = msg.pose.position
-
-        # Append data to the shared pose_data list
         with pose_lock:
-            pose_data.append([timestamp, position.x, position.y, position.z])
+            timestamp = self.get_clock().now().to_msg().sec + self.get_clock().now().to_msg().nanosec * 1e-9
+            position = msg.pose.position
+            print(f"Received: x={position.x}, y={position.y}, z={position.z}")
+            
+            print(topic_name, position.x, position.y, position.z)
+            topic_name = msg._connection_header['topic']
+            
+            pose_data.append([timestamp, topic_name, position.x, position.y, position.z])  # Add topic name
+            
 
     def shutdown(self):
-        """Graceful shutdown for the logger."""
+        """Graceful shutdown the logger."""
         self.destroy_node()
     
 def pose_logger_thread(topic_names, context):
     """Run PoseLogger in a separate thread."""
+    rclpy.init(context=context)
     pose_logger = PoseLogger(topic_names)
     try:
-        while logging_active:
-            rclpy.spin_once(pose_logger, timeout_sec=0.1)
+        # while logging_active:
+        #     # print("Spinning pose logger...")
+        #     rclpy.spin_once(pose_logger, timeout_sec=0.1)
+        rclpy.spin(pose_logger)
     except KeyboardInterrupt:
         pass
     finally:
+        print("Shutting down pose logger")
         pose_logger.shutdown()
         rclpy.shutdown(context=context)
         
@@ -84,13 +103,14 @@ def save_pose_data_to_csv(filename):
     with pose_lock:
         with open(filename, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['time', 'x', 'y', 'z'])  # Header
+            # writer.writerow(['time', 'x', 'y', 'z'])  # Header
+            writer.writerow(['time', 'topic', 'x', 'y', 'z'])
             writer.writerows(pose_data)
             
 def run_formation_square(allcfs):
     X_DIST = 4.0
-    FLIGHT_TIME = 11.0
-    NUM_DRONES = 4
+    FLIGHT_TIME = 8.0
+    NUM_DRONES = 3
     initial_positions = np.array([[0.0, 0.0, Z], 
                     [0.0, -0.5, Z], 
                     [-0.5, -0.5, Z],
@@ -191,10 +211,10 @@ def run_simple_case_A(allcfs):
         
 def run_simple_hover(allcfs):
     #TAKEOFF PARAMETERS
-    HOVER_DURATION = 45.0
+    HOVER_DURATION = 10.0
 
     if (ENABLE_MULTI_DRONE):
-        num_drones = 4
+        num_drones = 3
         initial_positions = np.array([[0.0, 0.0, Z], 
                      [0.0, -0.5, Z], 
                      [-0.5, -0.5, Z],
@@ -259,46 +279,50 @@ def setInitialPos(allcfs, num_drones, initial_positions):
     
         # Reset Estimation
         allcfs.crazyfliesById[i].setParam("kalman.resetEstimation", 1)
-    timeHelper.sleep(1)
+    timeHelper.sleep(0.2)
 
 def main():
     allcfs = swarm.allcfs
     
-    # if (ENABLE_LOGGING):
-    #     global logging_active
-    #     context = rclpy.context.Context()
-    #     rclpy.init(context=context)
-
+    if (ENABLE_LOGGING):
+        topic_names = ['/cf0/localization']  # Replace with your topics
+        experiment_name = 'experiment_data/localization_log.csv' 
+        
+        global logging_active
+        # rclpy.init(context=context)
     
-    #     logger_thread = threading.Thread(target=pose_logger_thread, args=(topic_names, context))
-    #     logger_thread.start()
+        logger_thread = threading.Thread(target=pose_logger_thread, args=(topic_names, context))
+        logger_thread.start()
     
-    #     try:
-    #         # Run the existing experiment logic
+        try:
+            # Run the existing experiment logic
 
-    #         # run_uav_traj
-    #         # run_uav_traj(allcfs)
+            # run_uav_traj
+            # run_uav_traj(allcfs)
             
-    #         # Go forward 4.0 meters
-    #         # run_simple_case_A(allcfs)
+            # Go forward 4.0 meters
+            # run_simple_case_A(allcfs)
             
-    #         # Formation square, then go forward 4.0 meters, and return.
-    #         run_formation_square(allcfs)
+            # Formation square, then go forward 4.0 meters, and return.
+            # run_formation_square(allcfs)
             
-    #         # Hover
-    # run_simple_hover(allcfs)
-    #     finally:
-    #         # Stop logging and save the pose data
-    #         logging_active = False
-    #         logger_thread.join()
-    #         save_pose_data_to_csv(experiment_name)
-    #         print("Pose data saved to: " + experiment_name)
+            # Hover
+            run_simple_hover(allcfs)
+            # timeHelper.sleep(5.0)
+        finally:
+            # Stop logging and save the pose data
+            logging_active = False
+            logger_thread.join()
+            save_pose_data_to_csv(experiment_name)
+            print("Pose data saved to: " + experiment_name)
             
-    # else:
-    run_formation_square(allcfs)
-    # allcfs.land(targetHeight=0.01, duration=TAKEOFF_DURATION)
+    else:
+        run_formation_square(allcfs)
+        # allcfs.land(targetHeight=0.01, duration=TAKEOFF_DURATION)
     
 
 
 if __name__ == '__main__':
     main()
+
+

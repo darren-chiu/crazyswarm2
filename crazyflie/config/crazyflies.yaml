@@ -28,7 +28,7 @@ robots:
     type: cf21  # see robot_types
 
   cf3:
-    enabled: true
+    enabled: false
     uri: radio://0/50/2M/E7E7E7E703
     initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
@@ -77,7 +77,7 @@ all:
   # firmware logging for all drones (use robot_types/type_name to set per type, or
   # robots/drone_name to set per drone)
   firmware_logging:
-    enabled: false
+    enabled: true
     # default_topics:
     #  remove to disable default topic
       # pose:
@@ -86,10 +86,10 @@ all:
       #   frequency: 10 # Hz
       # scan:
       #   frequency: 10 # Hztrue
-    # custom_topics:
-    #   localization:
-    #     frequency: 5 # Hz
-    #     vars: ["stateEstimate.x", "stateEstimate.y", "stateEstimate.z"]
+    custom_topics:
+      localization:
+        frequency: 10 # Hz
+        vars: ["stateEstimateZ.x", "stateEstimateZ.y", "stateEstimateZ.z"]
       # obstacle:
       #   frequency: 10 # Hz
       #   vars: ["logNN.obs1", "logNN.obs4", "logNN.obs5", "logNN.obs8"]
