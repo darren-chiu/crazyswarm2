@@ -15,7 +15,7 @@ import csv
 #     csv_writer.writerow(['time', 'drone', 'x', 'y', 'z'])
 
 
-Z = 0.65
+Z = 0.75
 YAW = 0
 TAKEOFF_DURATION = 2.5
 
@@ -108,30 +108,25 @@ def save_pose_data_to_csv(filename):
             writer.writerows(pose_data)
             
 def run_formation_square(allcfs):
-    X_DIST = 4.0
-    FLIGHT_TIME = 8.0
-    NUM_DRONES = 3
-    initial_positions = np.array([[0.0, 0.0, Z], 
-                    [0.0, -0.5, Z], 
-                    [-0.5, -0.5, Z],
-                    [-0.5, 0.0, Z]])
-    
-    # initial_positions = np.array([[0.0, 0.0, Z], 
-    #                  [0.0, -1.0, Z], 
+    X_DIST = 8.0
+    FLIGHT_TIME = 18.0
+    NUM_DRONES = 4
+    initial_positions = np.array([[0.0, 0.0, Z],
+                    [0.6, 0.0, Z],
+                    [0.6, -0.6, Z],
+                    [0.0, -0.6, Z]])
+    # initial_positions = np.array([[0.0, 0.0, Z],
+    #                  [0.0, -1.0, Z],
     #                  [-1.0, -1.0, Z],
     #                  [-1.0, 0.0, Z]])
-    
     setInitialPos(allcfs, num_drones=NUM_DRONES, initial_positions=initial_positions)
     timeHelper.sleep(0.1)
     allcfs.takeoff(targetHeight=Z, duration=TAKEOFF_DURATION)
     timeHelper.sleep(TAKEOFF_DURATION)
-    
-    allcfs.goTo([0.0, -X_DIST, 0.0], YAW, FLIGHT_TIME)
+    allcfs.goTo([X_DIST, 0.0, 0.0], YAW, FLIGHT_TIME)
     timeHelper.sleep(FLIGHT_TIME*1.2)
-    
-    allcfs.goTo([0.0, X_DIST, 0.0], YAW, FLIGHT_TIME)
-    timeHelper.sleep(FLIGHT_TIME*1.2)
-    
+    # allcfs.goTo([0.0, X_DIST, 0.0], YAW, FLIGHT_TIME)
+    # timeHelper.sleep(FLIGHT_TIME*1.2)
     allcfs.land(targetHeight=0.01, duration=TAKEOFF_DURATION)
     timeHelper.sleep(0.5)
         
